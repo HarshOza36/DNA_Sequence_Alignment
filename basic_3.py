@@ -51,7 +51,7 @@ class Utils:
 
         f.close()
 
-def basic_alignment(X,Y, alpha, delta):
+def basic_alignment(X, Y, alpha, delta):
     len_x = len(X)+1
     len_y = len(Y)+1
     seq_1 = []
