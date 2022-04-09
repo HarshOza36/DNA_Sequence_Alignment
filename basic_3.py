@@ -125,5 +125,5 @@ if __name__ == '__main__':
     time_taken = (end_time - start_time)*1000
     memory_consumed = int(memory_info.rss/1024)
     print(f"{memory_consumed} KB")
-    print(f"{time_taken:.2f} s")
+    print(f"{time_taken:.2f} ms")
    
