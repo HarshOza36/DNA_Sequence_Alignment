@@ -86,15 +86,15 @@ def basic_alignment(X, Y, alpha, delta):
             i-=1
             j-=1
 
-        elif dp_matrix[i-1][j] + delta == dp_matrix[i][j]:
-            seq_1.append(X[i-1])
-            seq_2.append('_')
-            i-=1
-
-        else:
+        elif dp_matrix[i][j-1] + delta == dp_matrix[i][j]:
             seq_1.append('_')
             seq_2.append(Y[j-1])
             j-=1
+
+        else:
+            seq_1.append(X[i-1])
+            seq_2.append('_')
+            i-=1
     
     while i > 0:
         seq_1.append(X[i-1])
