@@ -44,12 +44,14 @@ class Utils:
         dnaStrY = self.generateString(baseStrY, Y_indices)
         return (dnaStrX.upper(), dnaStrY.upper())
 
-    def write_output(self, op_file, data):
-        f = open(op_file, 'w')
-        for line in data:
-            f.write(line + '\n')
-
-        f.close()
+    def write_output(self, op_file, data, opt_cost, time_taken, memory_consumed):
+        with open(op_file, 'w') as f:
+            f.write(f"{opt_cost}\n")
+            for line in data:
+                f.write(line + '\n')
+            f.write(f"{time_taken:.2f} ms\n")
+            f.write(f"{memory_consumed} KB")
+            f.close()
 
 def basic_alignment(X, Y, alpha, delta):
     len_x = len(X)+1
@@ -76,6 +78,7 @@ def basic_alignment(X, Y, alpha, delta):
                 dp_matrix[i-1][j] + delta
             )
     #print(dp_matrix[-1][-1])
+    opt_cost = dp_matrix[-1][-1]
     i = len_x-1
     j = len_y-1
 
@@ -106,7 +109,7 @@ def basic_alignment(X, Y, alpha, delta):
         seq_2.append(Y[j-1])
         j-=1
 
-    return [str(dp_matrix[-1][-1]), ''.join(seq_1[::-1]), ''.join(seq_2[::-1])]
+    return opt_cost, [str(dp_matrix[-1][-1]), ''.join(seq_1[::-1]), ''.join(seq_2[::-1])]
 
 
 if __name__ == '__main__':
@@ -119,11 +122,11 @@ if __name__ == '__main__':
     process = psutil.Process()
     memory_info = process.memory_info()
     start_time = time.time()
-    sequences = basic_alignment(dnaStrX, dnaStrY, obj.alpha_values, obj.delta_e)
-    obj.write_output(output_file, sequences)
+    opt_cost, sequences = basic_alignment(dnaStrX, dnaStrY, obj.alpha_values, obj.delta_e)
     end_time = time.time()
     time_taken = (end_time - start_time)*1000
     memory_consumed = int(memory_info.rss/1024)
     print(f"{memory_consumed} KB")
     print(f"{time_taken:.2f} ms")
+    obj.write_output(output_file, sequences, opt_cost, time_taken, memory_consumed)
    
