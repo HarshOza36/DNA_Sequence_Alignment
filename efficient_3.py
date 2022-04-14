@@ -44,7 +44,7 @@ class Utils:
         dnaStrY = self.generateString(baseStrY, Y_indices)
         return (dnaStrX.upper(), dnaStrY.upper())
 
-    def write_output(self, op_file, data, opt_cost, time_taken, memory_consumed):
+    def write_output(self, op_file, data, time_taken, memory_consumed):
         with open(op_file, 'w') as f:
             f.write(f"{opt_cost}\n")
             for line in data:
@@ -53,7 +53,6 @@ class Utils:
             f.write(f"{memory_consumed} KB")
             f.close()
 
-#DO THE DP COMPUTATION
 def align(X,Y,alpha, delta):
     len_x = len(X)+1
     len_y = len(Y)+1
@@ -85,19 +84,73 @@ def align(X,Y,alpha, delta):
 
     return dp_matrix[-1] #RETURN THAT CENTER ROW THINGY
 
+def basic_alignment(X, Y, alpha, delta):
+    len_x = len(X)+1
+    len_y = len(Y)+1
+    seq_1 = []
+    seq_2 = []
+
+    #dp_matrix = [[] for _ in range(len_y)]
+    dp_matrix = [[None for _ in range(len_y)] for _ in range(len_x)]
+    #print(dp_matrix)
+    for i in range(len_x):
+        dp_matrix[i][0] = i*delta
+
+    for i in range(1,len_y):
+        dp_matrix[0][i] = i*delta
+
+    #print(len(dp_matrix))
+    for j in range(1,len_y):
+        for i in range(1,len_x):
+            #print(i,j)
+            dp_matrix[i][j] = min(
+                dp_matrix[i-1][j-1] + alpha[X[i-1]][Y[j-1]],
+                dp_matrix[i][j-1] + delta,
+                dp_matrix[i-1][j] + delta
+            )
+
+    i = len_x-1
+    j = len_y-1
+
+    while i > 0 and j > 0:
+        if dp_matrix[i-1][j-1] + alpha[X[i-1]][Y[j-1]] == dp_matrix[i][j]:
+            seq_1.append(X[i-1])
+            seq_2.append(Y[j-1])
+            i-=1
+            j-=1
+
+        elif dp_matrix[i][j-1] + delta == dp_matrix[i][j]:
+            seq_1.append('_')
+            seq_2.append(Y[j-1])
+            j-=1
+
+        else:
+            seq_1.append(X[i-1])
+            seq_2.append('_')
+            i-=1
+    
+    while i > 0:
+        seq_1.append(X[i-1])
+        seq_2.append('_')
+        i-=1
+
+    while j > 0:
+        seq_1.append('_')
+        seq_2.append(Y[j-1])
+        j-=1
+
+    return [dp_matrix[-1][-1], ''.join(seq_1[::-1]), ''.join(seq_2[::-1])]
+
 def dnc_alignment(X,Y, alpha, delta):
 
 
    n = len(X)
    m = len(Y)
-   #TO DO 
-   #I THINK AN EXIT CONDITION WOULD BE TO FIND THE ALIGNMENT USING BASIC ALGO FOR SOME TRIVIAL CASE (like n,m = 1 or something)
-   #SINCE THERE WILL BE NO BACKTRACKING REQD FOR SUCH A SMALL CASE
-   #RETURN THAT AND THROUGH THE CALLS KEEP ADDING LETTER BY LETTER?
-   
+   if n < 2 or m < 2:
+        return basic_alignment(X, Y)
    #DIVIDE 
-   left = align(X[:n/2, Y, alpha, delta])
-   right = align(X[n/2:, Y, alpha, delta]) 
+   left = align(X[:n/2], Y, alpha, delta)
+   right = align(X[n/2:], Y, alpha, delta) 
    #SINCE THE PATH OF THE OPTIMAL SOLUTION WILL GO FROM LEFT TO RIGHT FROM TOP TO BOTTOM
    #THE MAX SCORE WILL BE FROM SOME i IN LEFT to some m-i in RIGHT
    part = [left[i] + right[m-i] for i in range(m+1)]
@@ -106,7 +159,7 @@ def dnc_alignment(X,Y, alpha, delta):
 
    left_half = dnc_alignment(X[:n/2],Y[:cut], alpha, delta)
    right_half = dnc_alignment(X[n/2:],Y[cut:], alpha, delta) 
-   return "TO DO"
+   return [(left_half[i] + right_half[i]) for i in range(len(left_half))]
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
@@ -118,11 +171,11 @@ if __name__ == '__main__':
     process = psutil.Process()
     memory_info = process.memory_info()
     start_time = time.time()
-    opt_cost, sequences = dnc_alignment(dnaStrX, dnaStrY, obj.alpha_values, obj.delta_e)
+    data = dnc_alignment(dnaStrX, dnaStrY, obj.alpha_values, obj.delta_e)
     end_time = time.time()
     time_taken = (end_time - start_time)*1000
     memory_consumed = int(memory_info.rss/1024)
     print(f"{memory_consumed} KB")
     print(f"{time_taken:.2f} s")
-    obj.write_output(output_file, sequences, opt_cost, time_taken, memory_consumed)
+    obj.write_output(output_file, data, time_taken, memory_consumed)
    
