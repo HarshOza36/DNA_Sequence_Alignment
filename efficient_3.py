@@ -51,7 +51,59 @@ class Utils:
 
         f.close()
 
+#DO THE DP COMPUTATION
+def align(X,Y,alpha, delta):
+    len_x = len(X)+1
+    len_y = len(Y)+1
+    #seq_1 = []
+    #seq_2 = []
+
+    #dp_matrix = [[] for _ in range(len_y)]
+    dp_matrix = [[None for _ in range(len_y)] for _ in range(len_x)]
+    #print(dp_matrix)
+    for i in range(len_x):
+        dp_matrix[i][0] = i*delta
+
+    for i in range(1,len_y):
+        dp_matrix[0][i] = i*delta
+
+    #print(len(dp_matrix))
+    for j in range(1,len_y):
+        for i in range(1,len_x):
+            #print(i,j)
+            dp_matrix[i][j] = min(
+                dp_matrix[i-1][j-1] + alpha[X[i-1]][Y[j-1]],
+                dp_matrix[i][j-1] + delta,
+                dp_matrix[i-1][j] + delta
+            )
+    #FOR THE NEXT TWO LINES. WE ARE FILLING TOP DOWN SO BASED ON MY UNDERSTANDING THE LAST ROW WILL RETURN
+    #THE DESIRED THING THAT WE WANT
+    #IN THE SIMILAR VEIN THE ROW J-1 FOR THE CURRENT COMPUTATION WILL NO LONGER BE NEEDED FOR THE NEXT COMPUTATION HENCE DELETE
+        dp_matrix[j-1] = [] #REMOVE ROWS THAT ARENT NEEDED
+
+    return dp_matrix[-1] #RETURN THAT CENTER ROW THINGY
+
 def dnc_alignment(X,Y, alpha, delta):
+
+
+   n = len(X)
+   m = len(Y)
+   #TO DO 
+   #I THINK AN EXIT CONDITION WOULD BE TO FIND THE ALIGNMENT USING BASIC ALGO FOR SOME TRIVIAL CASE (like n,m = 1 or something)
+   #SINCE THERE WILL BE NO BACKTRACKING REQD FOR SUCH A SMALL CASE
+   #RETURN THAT AND THROUGH THE CALLS KEEP ADDING LETTER BY LETTER?
+   
+   #DIVIDE 
+   left = align(X[:n/2, Y, alpha, delta])
+   right = align(X[n/2:, Y, alpha, delta]) 
+   #SINCE THE PATH OF THE OPTIMAL SOLUTION WILL GO FROM LEFT TO RIGHT FROM TOP TO BOTTOM
+   #THE MAX SCORE WILL BE FROM SOME i IN LEFT to some m-i in RIGHT
+   part = [left[i] + right[m-i] for i in range(m+1)]
+   cut = part.index(min(part)) #MIN SCORE SINCE WE WANT LOWEST COST PATH
+   left,right,part = [], [], []
+
+   left_half = dnc_alignment(X[:n/2],Y[:cut], alpha, delta)
+   right_half = dnc_alignment(X[n/2:],Y[cut:], alpha, delta) 
    return "TO DO"
 
 if __name__ == '__main__':
