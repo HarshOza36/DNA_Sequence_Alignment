@@ -149,8 +149,8 @@ def dnc_alignment(X,Y, alpha, delta):
    if n < 2 or m < 2:
         return basic_alignment(X, Y)
    #DIVIDE 
-   left = align(X[:n/2], Y, alpha, delta)
-   right = align(X[n/2:][::-1], Y[::-1], alpha, delta) 
+   left = align(X[:n//2], Y, alpha, delta)
+   right = align(X[n//2:][::-1], Y[::-1], alpha, delta) 
    #SINCE THE PATH OF THE OPTIMAL SOLUTION WILL GO FROM LEFT TO RIGHT FROM TOP TO BOTTOM
    #THE MAX SCORE WILL BE FROM SOME i IN LEFT to some m-i in RIGHT
    part = [left[i] + right[m-i] for i in range(m+1)]
@@ -163,7 +163,7 @@ def dnc_alignment(X,Y, alpha, delta):
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print("Usage: python3 filename.py inputFile.txt")
+        print("Usage: python3 filename.py inputFile.txt outputFile.txt")
         sys.exit()
     obj = Utils()
     dnaStrX, dnaStrY = obj.parseInput(sys.argv[1])
