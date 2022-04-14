@@ -150,7 +150,7 @@ def dnc_alignment(X,Y, alpha, delta):
         return basic_alignment(X, Y)
    #DIVIDE 
    left = align(X[:n/2], Y, alpha, delta)
-   right = align(X[n/2:], Y, alpha, delta) 
+   right = align(X[n/2:][::-1], Y[::-1], alpha, delta) 
    #SINCE THE PATH OF THE OPTIMAL SOLUTION WILL GO FROM LEFT TO RIGHT FROM TOP TO BOTTOM
    #THE MAX SCORE WILL BE FROM SOME i IN LEFT to some m-i in RIGHT
    part = [left[i] + right[m-i] for i in range(m+1)]
