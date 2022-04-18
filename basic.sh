@@ -1,1 +1,1 @@
-python basic_3.py "$1" "$2"
+python3 basic_3.py "$1" "$2"

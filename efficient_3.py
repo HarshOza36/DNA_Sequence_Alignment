@@ -1,7 +1,7 @@
 import sys
 import time
 import psutil
-
+import tracemalloc
 
 class Utils:
     def __init__(self):
@@ -46,16 +46,22 @@ class Utils:
 
     def write_output(self, op_file, data, time_taken, memory_consumed):
         with open(op_file, 'w') as f:
-            f.write(f"{opt_cost}\n")
             for line in data:
-                f.write(line + '\n')
+                f.write(str(line) + '\n')
             f.write(f"{time_taken:.2f} ms\n")
             f.write(f"{memory_consumed} KB")
             f.close()
+def process_memory():
+  process = psutil.Process()
+  memory_info = process.memory_info()
+  memory_consumed = int(memory_info.rss/1024)
+  return memory_consumed
+
 
 def align(X,Y,alpha, delta):
     len_x = len(X)+1
     len_y = len(Y)+1
+
 
     dp_matrix = [[None for _ in range(len_y)] for _ in range(len_x)]
     for i in range(len_x):
@@ -63,20 +69,18 @@ def align(X,Y,alpha, delta):
 
     for i in range(1,len_y):
         dp_matrix[0][i] = i * delta
-
-    for j in range(1,len_y):
-        for i in range(1,len_x):
+    
+    
+    for i in range(1,len_x):
+        for j in range(1,len_y):
             dp_matrix[i][j] = min(
                 dp_matrix[i-1][j-1] + alpha[X[i-1]][Y[j-1]],
                 dp_matrix[i][j-1] + delta,
                 dp_matrix[i-1][j] + delta
             )
-    #FOR THE NEXT TWO LINES. WE ARE FILLING TOP DOWN SO BASED ON MY UNDERSTANDING THE LAST ROW WILL RETURN
-    #THE DESIRED THING THAT WE WANT
-    #IN THE SIMILAR VEIN THE ROW J-1 FOR THE CURRENT COMPUTATION WILL NO LONGER BE NEEDED FOR THE NEXT COMPUTATION HENCE DELETE
-        dp_matrix[j-1] = [] #REMOVE ROWS THAT ARENT NEEDED
 
-    return dp_matrix[-1] #RETURN THAT CENTER ROW THINGY
+        dp_matrix[i-1] = [] 
+    return dp_matrix[-1] 
 
 def basic_alignment(X, Y, alpha, delta):
     len_x = len(X) + 1
@@ -131,24 +135,29 @@ def basic_alignment(X, Y, alpha, delta):
 
     return [dp_matrix[-1][-1], ''.join(seq_1[::-1]), ''.join(seq_2[::-1])]
 
+
+
+
 def dnc_alignment(X,Y, alpha, delta):
+    data = dnc_alignment_helper(X,Y, alpha, delta)
+    memory_consumed = process_memory()
+    return memory_consumed, data
 
-
+def dnc_alignment_helper(X,Y, alpha, delta):
    n = len(X)
    m = len(Y)
    if n < 2 or m < 2:
-        return basic_alignment(X, Y)
-   # DIVIDE 
+        return basic_alignment(X, Y, alpha, delta)
+
    left = align(X[:n//2], Y, alpha, delta)
    right = align(X[n//2:][::-1], Y[::-1], alpha, delta) 
-   # SINCE THE PATH OF THE OPTIMAL SOLUTION WILL GO FROM LEFT TO RIGHT FROM TOP TO BOTTOM
-   # THE MAX SCORE WILL BE FROM SOME i IN LEFT to some m-i in RIGHT
+
    part = [left[i] + right[m-i] for i in range(m+1)]
-   cut = part.index(min(part)) # MIN SCORE SINCE WE WANT LOWEST COST PATH
+   cut = part.index(min(part)) 
    left,right,part = [], [], []
 
-   left_half = dnc_alignment(X[:n/2], Y[:cut], alpha, delta)
-   right_half = dnc_alignment(X[n/2:], Y[cut:], alpha, delta) 
+   left_half = dnc_alignment(X[:n//2], Y[:cut], alpha, delta)
+   right_half = dnc_alignment(X[n//2:], Y[cut:], alpha, delta) 
    return [(left_half[i] + right_half[i]) for i in range(len(left_half))]
 
 if __name__ == '__main__':
@@ -158,14 +167,17 @@ if __name__ == '__main__':
     obj = Utils()
     dnaStrX, dnaStrY = obj.parseInput(sys.argv[1])
     output_file = sys.argv[2]
-    process = psutil.Process()
-    memory_info = process.memory_info()
+    # process = psutil.Process()
+    # memory_info = process.memory_info()
+    # tracemalloc.start()
     start_time = time.time()
-    data = dnc_alignment(dnaStrX, dnaStrY, obj.alpha_values, obj.delta_e)
+    memory_consumed, data = dnc_alignment(dnaStrX, dnaStrY, obj.alpha_values, obj.delta_e)
     end_time = time.time()
     time_taken = (end_time - start_time)*1000
-    memory_consumed = int(memory_info.rss/1024)
+    # memory_consumed = int(memory_info.rss/1024)
+    # memory_consumed = tracemalloc.get_traced_memory()[1]/1000
+    # tracemalloc.stop()
     print(f"{memory_consumed} KB")
-    print(f"{time_taken:.2f} s")
+    print(f"{time_taken:.2f} ms")
     obj.write_output(output_file, data, time_taken, memory_consumed)
    
