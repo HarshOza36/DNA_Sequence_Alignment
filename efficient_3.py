@@ -135,9 +135,12 @@ def basic_alignment(X, Y, alpha, delta):
     return [dp_matrix[-1][-1], ''.join(seq_1[::-1]), ''.join(seq_2[::-1])]
 
 def dnc_alignment(X,Y, alpha, delta):
+    start_time = time.time()
     data = dnc_alignment_helper(X,Y, alpha, delta)
+    end_time = time.time()
+    time_taken = (end_time - start_time)*1000
     memory_consumed = process_memory()
-    return memory_consumed, data
+    return time_taken, memory_consumed, data
 
 def dnc_alignment_helper(X,Y, alpha, delta):
    n = len(X)
@@ -152,8 +155,8 @@ def dnc_alignment_helper(X,Y, alpha, delta):
    cut = part.index(min(part)) 
    left,right,part = [], [], []
 
-   left_half = dnc_alignment(X[:n//2], Y[:cut], alpha, delta)
-   right_half = dnc_alignment(X[n//2:], Y[cut:], alpha, delta) 
+   left_half = dnc_alignment_helper(X[:n//2], Y[:cut], alpha, delta)
+   right_half = dnc_alignment_helper(X[n//2:], Y[cut:], alpha, delta) 
    return [(left_half[i] + right_half[i]) for i in range(len(left_half))]
 
 if __name__ == '__main__':
@@ -166,14 +169,15 @@ if __name__ == '__main__':
     # process = psutil.Process()
     # memory_info = process.memory_info()
     # tracemalloc.start()
-    start_time = time.time()
-    memory_consumed, data = dnc_alignment(dnaStrX, dnaStrY, obj.alpha_values, obj.delta_e)
-    end_time = time.time()
-    time_taken = (end_time - start_time)*1000
+    # start_time = time.time()
+    time_taken, memory_consumed, data = dnc_alignment(dnaStrX, dnaStrY, obj.alpha_values, obj.delta_e)
+    # end_time = time.time()
+    # time_taken = (end_time - start_time)*1000
     # memory_consumed = int(memory_info.rss/1024)
     # memory_consumed = tracemalloc.get_traced_memory()[1]/1000
     # tracemalloc.stop()
-    print(f"{memory_consumed} KB")
-    print(f"{time_taken:.2f} ms")
+    # print(data)
+    # print(f"{memory_consumed} KB")
+    # print(f"{time_taken:.2f} ms")
     obj.write_output(output_file, data, time_taken, memory_consumed)
    

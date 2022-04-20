@@ -59,6 +59,7 @@ def process_memory():
   return memory_consumed
 
 def basic_alignment(X, Y, alpha, delta):
+    start_time = time.time()
     len_x = len(X) + 1
     len_y = len(Y) + 1
     seq_1 = []
@@ -108,10 +109,11 @@ def basic_alignment(X, Y, alpha, delta):
         seq_1.append('_')
         seq_2.append(Y[j-1])
         j -= 1
-    
+    end_time = time.time()
+    time_taken = (end_time - start_time)*1000
     memory_consumed = process_memory()
 
-    return memory_consumed, [str(dp_matrix[-1][-1]), ''.join(seq_1[::-1]), ''.join(seq_2[::-1])]
+    return time_taken, memory_consumed, [str(dp_matrix[-1][-1]), ''.join(seq_1[::-1]), ''.join(seq_2[::-1])]
 
 
 if __name__ == '__main__':
@@ -123,12 +125,12 @@ if __name__ == '__main__':
     output_file = sys.argv[2]
     # process = psutil.Process()
     # memory_info = process.memory_info()
-    start_time = time.time()
-    memory_consumed, data = basic_alignment(dnaStrX, dnaStrY, obj.alpha_values, obj.delta_e)
-    end_time = time.time()
-    time_taken = (end_time - start_time)*1000
+    # start_time = time.time()
+    time_taken, memory_consumed, data = basic_alignment(dnaStrX, dnaStrY, obj.alpha_values, obj.delta_e)
+    # end_time = time.time()
+    # time_taken = (end_time - start_time)*1000
     # memory_consumed = int(memory_info.rss/1024)
-    print(f"{memory_consumed} KB")
-    print(f"{time_taken:.2f} ms")
+    # print(f"{memory_consumed} KB")
+    # print(f"{time_taken:.2f} ms")
     obj.write_output(output_file, data, time_taken, memory_consumed)
    
