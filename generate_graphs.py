@@ -69,7 +69,7 @@ for i in range(len_input):
   y_axis_mem_dnc.append(dnc_ps[i]['mem'])
 # Problem Size (m+n) vs CPU
 plt.xlabel("Problem Size (m+n)")
-plt.ylabel("CPU Time (in s)")
+plt.ylabel("CPU Time (in ms)")
 plt.title("CPU Time Comparison of Sequence Alignment")
 plt.plot(x_axis, y_axis_cpu_basic, label="Basic")
 plt.plot(x_axis, y_axis_cpu_dnc, label="Divide_N_Conquer")
