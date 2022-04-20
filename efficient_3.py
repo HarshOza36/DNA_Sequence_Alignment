@@ -61,14 +61,12 @@ def align(X,Y,alpha, delta):
     len_x = len(X)+1
     len_y = len(Y)+1
 
-
     dp_matrix = [[None for _ in range(len_y)] for _ in range(len_x)]
     for i in range(len_x):
         dp_matrix[i][0] = i * delta
 
     for i in range(1,len_y):
         dp_matrix[0][i] = i * delta
-    
     
     for i in range(1,len_x):
         for j in range(1,len_y):
@@ -166,18 +164,6 @@ if __name__ == '__main__':
     obj = Utils()
     dnaStrX, dnaStrY = obj.parseInput(sys.argv[1])
     output_file = sys.argv[2]
-    # process = psutil.Process()
-    # memory_info = process.memory_info()
-    # tracemalloc.start()
-    # start_time = time.time()
     time_taken, memory_consumed, data = dnc_alignment(dnaStrX, dnaStrY, obj.alpha_values, obj.delta_e)
-    # end_time = time.time()
-    # time_taken = (end_time - start_time)*1000
-    # memory_consumed = int(memory_info.rss/1024)
-    # memory_consumed = tracemalloc.get_traced_memory()[1]/1000
-    # tracemalloc.stop()
-    # print(data)
-    # print(f"{memory_consumed} KB")
-    # print(f"{time_taken:.2f} ms")
     obj.write_output(output_file, data, time_taken, memory_consumed)
    

@@ -123,14 +123,6 @@ if __name__ == '__main__':
     obj = Utils()
     dnaStrX, dnaStrY = obj.parseInput(sys.argv[1])
     output_file = sys.argv[2]
-    # process = psutil.Process()
-    # memory_info = process.memory_info()
-    # start_time = time.time()
     time_taken, memory_consumed, data = basic_alignment(dnaStrX, dnaStrY, obj.alpha_values, obj.delta_e)
-    # end_time = time.time()
-    # time_taken = (end_time - start_time)*1000
-    # memory_consumed = int(memory_info.rss/1024)
-    # print(f"{memory_consumed} KB")
-    # print(f"{time_taken:.2f} ms")
     obj.write_output(output_file, data, time_taken, memory_consumed)
    
