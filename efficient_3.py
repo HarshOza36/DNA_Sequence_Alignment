@@ -48,8 +48,8 @@ class Utils:
         with open(op_file, 'w') as f:
             for line in data:
                 f.write(str(line) + '\n')
-            f.write(f"{time_taken:.6f} ms\n")
-            f.write(f"{memory_consumed} KB")
+            f.write(f"{time_taken:.6f}\n")
+            f.write(f"{memory_consumed}")
             f.close()
 def process_memory():
   process = psutil.Process()
