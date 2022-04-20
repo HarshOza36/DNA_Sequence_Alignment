@@ -48,7 +48,7 @@ class Utils:
         with open(op_file, 'w') as f:
             for line in data:
                 f.write(line + '\n')
-            f.write(f"{time_taken:.2f} ms\n")
+            f.write(f"{time_taken:.6f} ms\n")
             f.write(f"{memory_consumed} KB")
             f.close()
 
